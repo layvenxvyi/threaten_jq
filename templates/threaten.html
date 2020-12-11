@@ -1,0 +1,178 @@
+
+{% extends "base.html" %}
+{% block title %}通知方式查询{% endblock %}
+{% block navbar %}
+<section class="content-header" xmlns="http://www.w3.org/1999/html">
+    <h1>威胁预警查看</h1>
+    <ol class="breadcrumb">
+        <li><i class="fa fa-dashboard"></i> 当前位置</li>
+        <li class="active">威胁预警查看</li>
+    </ol>
+</section>
+{% endblock %}
+
+{% block content %}
+<div class="box box-primary">
+        </div>
+    <div class="box-body">
+        <table class="table table-bordered">
+    <div class="row">
+        <div class="card-tools">
+            <form action ="{{url_for('getdata')}}" method="POST" id="form">
+        <div class="col-sm-3">
+        <div class="form-group">
+            <label>来源选择</label>
+            <select name="select_origin" class="form-control">
+            {% for k, v in arr1.items() %}
+            {% if select_val["select_origin"]==k %}
+            <option selected="selected" value={{ k }}>{{ v }}</option>
+            {% else %}
+            <option value={{ k }}>{{ v }}</option>
+            {% endif %}
+            {% endfor %}
+            </select>
+        </div>
+        </div>
+        <div class="col-sm-3">
+        <div class="form-group">
+            <label>类型选择</label>
+            <select name="select_type" class="form-control">
+            {% for k, v in arr2.items() %}
+            {% if select_val["select_type"]==k %}
+            <option selected="selected" value={{ k }}>{{ v }}</option>
+            {% else %}
+            <option value={{ k }}>{{ v }}</option>
+            {% endif %}
+            {% endfor %}
+            </select>
+        </div>
+        </div>
+    <div class="col-sm-3">
+    <div class="form-group">
+        <label>关键字多选</label>
+        <select class="form-control select2" multiple="multiple" name="select_shotkey" id="select_shotkey" style="width: 100%;">
+         {% for k, v in arr3.items() %}
+        <option disabled="disabled">{{k}}</option>
+              {% if select_val["select_shotkey"] %}
+                    {% for i in range(select_val["select_shotkey"]|length) %}
+                          {% for key in v %}
+                          {% if select_val["select_shotkey"][i]==key %}
+                                <option selected="selected"> {{ key }} </option>
+                                {% set v=v.remove(key)%}
+                          {% endif %}
+                          {% endfor %}
+                    {% endfor %}
+                    {% for leavekey in v %}
+                          <option> {{ leavekey }} </option>
+                    {% endfor %}
+              {% else %}
+                    {% for key in v %}
+                    <option> {{ key }} </option>
+                    {% endfor %}
+              {% endif %}
+        {% endfor %}
+        </select>
+
+    </div>
+    </div>
+    <div class="col-sm-2">
+    <div class="form-group">
+        <input type="submit" id="shotkey" class="btn btn-block btn-info"
+        style="background-color:#3c8dbc;margin-top:24px;margin-left:18px;" value="提交"/>
+    </div>
+    </div>
+    </form>
+    </div>
+
+    <div id="data">
+        <div class="modal fade" id="myModal">
+        <div class="modal-dialog modal-lg">
+          <div class="modal-content">
+            <div class="modal-header">
+            <!-- 取name为标题 -->
+              <h4 class="modal-title" id="data_name"></h4>
+                <button type="button" class="close" data-dismiss="modal" aria-label="Close">
+                <span aria-hidden="true">&times;</span>
+              </button>
+            </div>
+            <div class="modal-body">
+            <!-- 取url，detail为模态框内容 -->
+            <a href="#" id="data_urlhref" target="_blank">点击阅读原文</a>
+              <p id="data_detail" style="white-space:pre-wrap;"></p>
+            </div>
+            <div class="modal-footer justify-content-between">
+              <button type="button" class="btn btn-default" data-dismiss="modal">Close</button>
+            </div>
+          </div>
+        </div>
+
+      </div>
+        <tr>
+            <th>标题</th>
+            <th>通告时间</th>
+            <th>来源</th>
+            <th>分类</th>
+            <th>命中关键字</th>
+        </tr>
+            {% for data in datas.items %}
+            <tr onclick="javascript:$('#myModal').modal('show');
+            var $td = $(this).children();
+            $('#data_name').text($td.eq(0).text());
+            $('#data_urlhref').attr('href',$td.eq(2).text());
+            $('#data_detail').text($td.eq(1).text());">
+            <td>{{data.name}}</td>
+            <td hidden="hidden">{{data.urldetail}}</td>
+            <td hidden="hidden">{{data.urlhref}}</td>
+            <td>{{data.time}}</td>
+            <td>{% if data.origin == 1 %}阿里云{% elif data.origin == 2 %}腾讯云{% elif data.origin == 3 %}CNNVD
+                {% else %}绿盟{% endif %}</td>
+            <td>{% if data.shottype == 1 %}操作系统{% elif data.shottype == 2 %}中间件{% elif data.shottype == 3 %}开发框架
+                {% elif data.shottype == 4 %}数据库{% elif data.shottype == 5 %}web应用{% else %}其他{% endif %}</td>
+            <td>{{data.shotkey}}</td>
+        </tr>
+            {% endfor %}
+        </button>
+    </div></div></table>
+
+    <div class="form-group form-inline pull-left" style="margin-top: 20px;">当前{{ datas.page }}页，共{{ datas.pages }}页，总共{{ datas.total }}条</div>
+    <nav aria-label="Page navigation example" class="pull-right">
+    <ul class="pagination">
+        <li class="page-item {% if not datas.has_prev %}disabled{% endif %}">
+            <a href="{% if datas.has_prev %}{{ url_for('getdata', page=datas.page - 1) }}{% else %}#{% endif %}" class="page-link" aria-label="Previous">
+                <span aria-hidden="true">&laquo;</span>
+            </a>
+        </li>
+        {% for p in datas.iter_pages() %}
+            {% if p %}
+                {% if p == datas.page %}
+                <li class="page-item active" aria-current="page">
+                    <a class="page-link" href="{{ url_for('getdata',page=p,select_val=select_val) }}">{{ p }}<span class="sr-only">(current)</span></a>
+                </li>
+                {% else %}
+                <li class="page-item">
+                    <a class="page-link" href="{{ url_for('getdata', page=p,select_val=select_val) }}">{{ p }}</a>
+                </li>
+                {% endif %}
+            {% else %}
+            <li class="disabled"><a href="#">&hellip;</a></li>
+            {% endif %}
+        {% endfor %}
+        <li class="page-item {% if not datas.has_next %}disabled{% endif %}">
+            <a class="page-link" href="{% if datas.has_next %}{{ url_for('getdata', page=datas.page + 1,select_val=select_val) }}{% else %}#{% endif %}" aria-label="Next">
+            <span aria-hidden="true">&raquo;</span>
+            </a>
+        </li>
+    </ul>
+</nav>
+{% endblock %}
+
+{% block scripts %}
+
+<script>
+    var selectory = $('#select_shotkey').select2({
+    placeholder: '关键字搜索多选',
+    allowClear: true,
+});
+</script>
+
+{% endblock %}
