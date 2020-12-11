@@ -7,7 +7,6 @@
 ## 简介
 - /manager.py 运行文件，主逻辑未剥离，判断是否增量爬取，推送
 - /type_difinite.py 对爬取的内容进行分类处理
-- /disclosure 数据泄漏爬取，还未引用
 - /fullAmount_oneexecute 全量爬取威胁情报并写入excel
 - /increment 增量爬取类
 - /templates 前端模版
