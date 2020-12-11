@@ -25,12 +25,11 @@ app.config.from_object(Config)# 加载配置
 
 class threaten_test(db.Model):#表选项
     __tablename__='threaten_test'  #设置表名
-    id=db.Column(db.Integer,index=True, primary_key=True)
     origin=db.Column(db.Integer,index=True)
     #origin:阿里云1-腾讯云2-cnnvd3-nsfocus4
     name=db.Column(db.String(64),index=True)
     time=db.Column(db.DateTime(64),index=True)
-    urlhref=db.Column(db.String(64),unique=True)#主键不设会报错，对数据库无影响
+    urlhref=db.Column(db.String(64),unique=True,primary_key=True)#主键不设会报错，对数据库无影响
     urldetail=db.Column(db.String(40000),unique=True)
     shotkey=db.Column(db.String(64),index=True)#命中的关键字
     shottype=db.Column(db.Integer,index=True)#命中的类型1操作系统2中间件3开发框架4数据库5web应用6其他
